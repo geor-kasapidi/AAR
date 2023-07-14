@@ -41,7 +41,7 @@ public enum AppleArchiver {
 
             try encodeStream.writeDirectoryContents(
                 archiveFrom: path,
-                keySet: .init("TYP,PAT,DAT,UID,GID,MOD")!
+                keySet: .init("TYP,PAT,DAT")!
             )
         }
     }
