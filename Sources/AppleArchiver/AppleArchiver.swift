@@ -11,7 +11,7 @@ extension ArchiveByteStream: Closable {}
 public enum AppleArchiver {
     // MARK: Public
 
-    public static func encryptDirectory(path: FilePath, output: FilePath, key: SymmetricKey) throws {
+    public static func encryptDirectory(path: String, output: String, key: SymmetricKey) throws {
         try withClosables(error: ArchiveError.ioError) { closables in
             guard key.bitCount == 256 else {
                 throw ArchiveError.invalidValue
@@ -21,7 +21,7 @@ public enum AppleArchiver {
 
             let fileStream = try closables.new {
                 ArchiveByteStream.fileStream(
-                    path: output,
+                    path: .init(output),
                     mode: .writeOnly,
                     options: [.create, .truncate],
                     permissions: FilePermissions(rawValue: 0o644)
@@ -40,14 +40,14 @@ public enum AppleArchiver {
             }
 
             try encodeStream.writeDirectoryContents(
-                archiveFrom: path,
+                archiveFrom: .init(path),
                 keySet: .init("TYP,PAT,DAT")!
             )
         }
     }
 
     @discardableResult
-    public static func decryptDirectory(path: FilePath, output: FilePath, key: SymmetricKey) throws -> Int {
+    public static func decryptDirectory(path: String, output: String, key: SymmetricKey) throws -> Int {
         try withClosables(error: ArchiveError.ioError) { closables in
             guard key.bitCount == 256 else {
                 throw ArchiveError.invalidValue
@@ -55,7 +55,7 @@ public enum AppleArchiver {
 
             let fileStream = try closables.new {
                 ArchiveByteStream.fileStream(
-                    path: path,
+                    path: .init(path),
                     mode: .readOnly,
                     options: [],
                     permissions: []
@@ -80,7 +80,7 @@ public enum AppleArchiver {
             }
 
             let extractStream = try closables.new {
-                ArchiveStream.extractStream(extractingTo: output)
+                ArchiveStream.extractStream(extractingTo: .init(output))
             }
 
             let count = try ArchiveStream.process(readingFrom: decodeStream, writingTo: extractStream)
@@ -90,7 +90,7 @@ public enum AppleArchiver {
     }
 
     @discardableResult
-    public static func encryptFile(source: FilePath, destination: FilePath, key: SymmetricKey) throws -> Int64 {
+    public static func encryptFile(source: String, destination: String, key: SymmetricKey) throws -> Int64 {
         try withClosables(error: ArchiveError.ioError) { closables in
             guard key.bitCount == 256 else {
                 throw ArchiveError.invalidValue
@@ -100,7 +100,7 @@ public enum AppleArchiver {
 
             let sourceFileStream = try closables.new {
                 ArchiveByteStream.fileStream(
-                    path: source,
+                    path: .init(source),
                     mode: .readOnly,
                     options: [],
                     permissions: FilePermissions(rawValue: 0o644)
@@ -109,7 +109,7 @@ public enum AppleArchiver {
 
             let destinationFileStream = try closables.new {
                 ArchiveByteStream.fileStream(
-                    path: destination,
+                    path: .init(destination),
                     mode: .writeOnly,
                     options: [.create, .truncate],
                     permissions: FilePermissions(rawValue: 0o644)
@@ -133,7 +133,7 @@ public enum AppleArchiver {
     }
 
     @discardableResult
-    public static func decryptFile(source: FilePath, destination: FilePath, key: SymmetricKey) throws -> Int64 {
+    public static func decryptFile(source: String, destination: String, key: SymmetricKey) throws -> Int64 {
         try withClosables(error: ArchiveError.ioError) { closables in
             guard key.bitCount == 256 else {
                 throw ArchiveError.invalidValue
@@ -141,7 +141,7 @@ public enum AppleArchiver {
 
             let sourceFileStream = try closables.new {
                 ArchiveByteStream.fileStream(
-                    path: source,
+                    path: .init(source),
                     mode: .readOnly,
                     options: [],
                     permissions: FilePermissions(rawValue: 0o644)
@@ -163,7 +163,7 @@ public enum AppleArchiver {
 
             let destinationFileStream = try closables.new {
                 ArchiveByteStream.fileStream(
-                    path: destination,
+                    path: .init(destination),
                     mode: .writeOnly,
                     options: [.create, .truncate],
                     permissions: FilePermissions(rawValue: 0o644)
@@ -179,7 +179,7 @@ public enum AppleArchiver {
         }
     }
 
-    public static func encryptData(_ data: Data, destination: FilePath, key: SymmetricKey) throws {
+    public static func encryptData(_ data: Data, destination: String, key: SymmetricKey) throws {
         try withClosables(error: ArchiveError.ioError) { closables in
             guard key.bitCount == 256 else {
                 throw ArchiveError.invalidValue
@@ -189,7 +189,7 @@ public enum AppleArchiver {
 
             let destinationFileStream = try closables.new {
                 ArchiveByteStream.fileStream(
-                    path: destination,
+                    path: .init(destination),
                     mode: .writeOnly,
                     options: [.create, .truncate],
                     permissions: FilePermissions(rawValue: 0o644)
@@ -221,7 +221,7 @@ public enum AppleArchiver {
         }
     }
 
-    public static func decryptData(source: FilePath, key: SymmetricKey) throws -> Data {
+    public static func decryptData(source: String, key: SymmetricKey) throws -> Data {
         try withClosables(error: ArchiveError.ioError) { closables in
             guard key.bitCount == 256 else {
                 throw ArchiveError.invalidValue
@@ -229,7 +229,7 @@ public enum AppleArchiver {
 
             let fileStream = try closables.new {
                 ArchiveByteStream.fileStream(
-                    path: source,
+                    path: .init(source),
                     mode: .readOnly,
                     options: [],
                     permissions: FilePermissions(rawValue: 0o644)
